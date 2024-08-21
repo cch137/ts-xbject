@@ -261,13 +261,5 @@ export function writeOnly<T extends object, K extends Array<keyof T>>(
       if (!keys || keys.includes(p)) return undefined;
       return Reflect.get(t, p);
     },
-    has(t, p: any) {
-      if (!keys || keys.includes(p)) return false;
-      return Reflect.has(t, p);
-    },
-    ownKeys(t) {
-      if (!keys) return [];
-      return Reflect.ownKeys(t).filter((i: any) => !keys.includes(i));
-    },
   }) as T;
 }
