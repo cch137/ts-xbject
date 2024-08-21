@@ -225,3 +225,49 @@ export function omit<T extends object, K extends Array<keyof T>>(
     },
   }) as OmitKeys<T, K>;
 }
+
+export function readOnly<T extends object, K extends Array<keyof T>>(
+  obj: T,
+  keys?: K
+): T;
+export function readOnly<T extends object, K extends Array<keyof T>>(
+  obj: T,
+  _keys?: K
+) {
+  const keys = _keys || null;
+  return new Proxy(obj, {
+    set(t, p: any, v: any) {
+      if (!keys || keys.includes(p)) return false;
+      return Reflect.set(t, p, v);
+    },
+    deleteProperty(t, p: any) {
+      if (!keys || keys.includes(p)) return false;
+      return Reflect.deleteProperty(t, p);
+    },
+  }) as T;
+}
+
+export function writeOnly<T extends object, K extends Array<keyof T>>(
+  obj: T,
+  keys?: K
+): T;
+export function writeOnly<T extends object, K extends Array<keyof T>>(
+  obj: T,
+  _keys?: K
+) {
+  const keys = _keys || null;
+  return new Proxy(obj, {
+    get(t, p: any) {
+      if (!keys || keys.includes(p)) return undefined;
+      return Reflect.get(t, p);
+    },
+    has(t, p: any) {
+      if (!keys || keys.includes(p)) return false;
+      return Reflect.has(t, p);
+    },
+    ownKeys(t) {
+      if (!keys) return [];
+      return Reflect.ownKeys(t).filter((i: any) => !keys.includes(i));
+    },
+  }) as T;
+}
